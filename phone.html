@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phone NFC Scanner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f4f7fb;
+      color: #1f2937;
+    }
+    .card {
+      max-width: 420px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    }
+    h1 {
+      margin-bottom: 16px;
+      font-size: 1.75rem;
+      color: #0f172a;
+    }
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    p {
+      line-height: 1.6;
+    }
+    .status {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #eef2ff;
+      color: #3730a3;
+    }
+    .error {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>NFC Scanner</h1>
+    <p>Open this page on Android Chrome using your laptop IP address. Tap the button below to start NFC scanning.</p>
+    <button id="scanBtn" onclick="startScan()">Start NFC Scan</button>
+    <div id="status" class="status">Status: waiting to scan</div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    const backendHost = `${window.location.protocol}//${window.location.hostname}:4000`;
+    const socket = io(backendHost);
+    const statusEl = document.getElementById('status');
+    const scanBtn = document.getElementById('scanBtn');
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = `Status: ${message}`;
+      statusEl.className = `status${isError ? ' error' : ''}`;
+    }
+
+    socket.on('connect', () => {
+      console.log('Socket connected:', socket.id);
+      setStatus('Connected to backend');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Socket disconnected');
+      setStatus('Disconnected from backend', true);
+    });
+
+    socket.on('connect_error', (err) => {
+      console.error('Socket connect error:', err);
+      setStatus('Cannot connect to backend', true);
+    });
+
+    async function startScan() {
+      if (!('NDEFReader' in window)) {
+        setStatus('Web NFC is not supported in this browser.', true);
+        return;
+      }
+
+      try {
+        const ndef = new NDEFReader();
+        await ndef.scan();
+        setStatus('Tap your NFC card to scan');
+        scanBtn.disabled = true;
+
+        ndef.onreading = event => {
+          const uid = event.serialNumber;
+          console.log('UID:', uid);
+          setStatus(`UID scanned: ${uid}`);
+          socket.emit('nfc-scan', uid);
+        };
+
+        ndef.onreadingerror = () => {
+          setStatus('Failed to read NFC tag.', true);
+          scanBtn.disabled = false;
+        };
+      } catch (error) {
+        console.error('NFC error:', error);
+        const message = error.name === 'NotAllowedError'
+          ? 'Permission denied for NFC. Allow NFC access and try again.'
+          : error.name === 'NotSupportedError'
+            ? 'NFC is not supported on this device or browser.'
+            : 'NFC not supported or permission denied.';
+        setStatus(message, true);
+      }
+    }
+  </script>
+</body>
+</html>

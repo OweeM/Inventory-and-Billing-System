@@ -1,4 +1,7 @@
 const express = require("express");
+const http = require("http");
+const path = require("path");
+const { Server } = require("socket.io");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -29,17 +32,27 @@ if (!process.env.MONGO_URI) {
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-//  Configure CORS - change origin to your frontend URL (e.g., localhost:3000)
+//  Configure CORS - allow local UI and mobile access from the same network
 app.use(
   cors({
-    origin: "http://localhost:3000", // adjust according to your frontend
-    methods: "GET,POST,PUT,DELETE",
+    origin: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
 
 //  Middleware Setup
 app.use(express.json()); // Body parser
+
+// Serve root-level static files like phone.html
+app.get('/phone.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'phone.html'));
+});
+
+// also allow /phone as a friendly shortcut
+app.get('/phone', (req, res) => {
+  res.sendFile(path.join(__dirname, 'phone.html'));
+});
 
 //  API Routes Setup
 app.use("/api/auth", authRoutes); // Authentication routes
@@ -101,6 +114,42 @@ app.use(async (err, req, res, next) => {
   res.status(500).json({ message: "An unexpected error occurred" });
 });
 
-app.listen(PORT, () => {
-  console.log(` Server is running on http://localhost:${PORT}`);
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000", // same as your frontend
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("🔌 Client connected:", socket.id);
+
+  // Receive NFC UID from phone
+  socket.on("nfc-scan", async (uid) => {
+    console.log("📲 NFC UID received:", uid);
+
+    try {
+      // OPTIONAL: fetch item from DB
+      // const item = await Product.findOne({ nfcId: uid });
+
+      // Send to all frontend clients
+      io.emit("update-ui", uid);
+
+    } catch (error) {
+      console.error("Error handling NFC scan:", error);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Client disconnected:", socket.id);
+  });
+});
+
+// app.listen(PORT, () => {
+//   console.log(` Server is running on http://localhost:${PORT}`);
+// });
+
+server.listen(PORT, () => {
+  console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });

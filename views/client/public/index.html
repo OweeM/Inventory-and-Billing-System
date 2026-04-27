@@ -25,5 +25,18 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+      const socket = io("http://localhost:4000");
+
+      socket.on("update-ui", (uid) => {
+        console.log("Received NFC:", uid);
+        const uidElement = document.getElementById("uid");
+        if (uidElement) {
+          uidElement.innerText = uid;
+        }
+      });
+    </script>
   </body>
 </html>
