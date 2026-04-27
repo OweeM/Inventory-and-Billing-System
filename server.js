@@ -16,6 +16,15 @@ const { createNotification } = require("./utils/notificationUtils"); // Notifica
 // Load environment variables
 dotenv.config({ path: './.env' });
 
+const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/inventory-db';
+
+if (!process.env.MONGO_URI) {
+  console.warn(
+    'WARNING: MONGO_URI is not set. Using fallback local MongoDB URI:',
+    mongoUri
+  );
+}
+
 // Initialize Express App
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -46,7 +55,7 @@ app.use("/api/notifications", notificationRoutes); // Notifications route
 
 //  Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI, {
+  .connect(mongoUri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     serverSelectionTimeoutMS: 5000, // Prevents long timeouts
