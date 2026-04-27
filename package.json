@@ -1,0 +1,35 @@
+{
+  "name": "inventory-and-billing-system-web-project-24-25",
+  "version": "1.0.0",
+  "description": "A comprehensive **Inventory Management and Billing System**, specializing in **women's clothing**, **beauty products**, **jewelry**, and related items. This system will streamline business operations, manage inventory, enable billing with a rewards program, and support customer data tracking for promotional offers.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "postbuild": "npm run tailwind:build",
+    "tailwind:build": "tailwindcss -i ./src/index.css -o ./dist/tailwind.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
+    "axios": "^1.8.4",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.1",
+    "node-cron": "^3.0.3",
+    "nodemon": "^3.1.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-scripts": "^5.0.1"
+  }
+}
