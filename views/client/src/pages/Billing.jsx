@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaGift } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -31,6 +31,8 @@ const Billing = () => {
   const [redeem, setRedeem] = useState(false);
   const [rewardProducts, setRewardProducts] = useState([]);
   const [loadingRewards, setLoadingRewards] = useState(false);
+  const [scannedUid, setScannedUid] = useState("");
+  const billingChangeRef = useRef(null);
 
   // Fetch reward products
   useEffect(() => {
@@ -184,6 +186,28 @@ const Billing = () => {
     setBillingItems(updatedItems);
     updateTotalPrice(updatedItems);
   };
+
+  useEffect(() => {
+    billingChangeRef.current = handleBillingChange;
+  }, [handleBillingChange]);
+
+  useEffect(() => {
+    if (!window.io) return;
+
+    const socket = window.io("http://localhost:4000");
+
+    socket.on("update-ui", (uid) => {
+      console.log("Received NFC UID:", uid);
+      setScannedUid(uid);
+      if (billingChangeRef.current) {
+        billingChangeRef.current(0, "code", uid);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   // Handle quantity change
   const handleQuantityChange = (index, value) => {
@@ -402,6 +426,13 @@ const Billing = () => {
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+            <p className="text-sm font-semibold text-blue-700">Last scanned UID</p>
+            <p id="uid" className="text-lg font-bold text-blue-900">
+              {scannedUid || "No NFC UID scanned yet"}
+            </p>
           </div>
 
           {/* Billing Table */}
