@@ -117,8 +117,9 @@ app.use(async (err, req, res, next) => {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // same as your frontend
+    origin: true,
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 

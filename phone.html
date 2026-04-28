@@ -60,14 +60,13 @@
 <body>
   <div class="card">
     <h1>NFC Scanner</h1>
-    <p>Open this page on Android Chrome using your laptop IP address. Tap the button below to start NFC scanning.</p>
     <button id="scanBtn" onclick="startScan()">Start NFC Scan</button>
     <div id="status" class="status">Status: waiting to scan</div>
   </div>
 
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script>
-    const backendHost = `${window.location.protocol}//${window.location.hostname}:4000`;
+    const backendHost = window.location.origin;
     const socket = io(backendHost);
     const statusEl = document.getElementById('status');
     const scanBtn = document.getElementById('scanBtn');
