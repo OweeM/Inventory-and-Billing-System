@@ -64,7 +64,7 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 w-full h-16 bg-[#F5F5F5] shadow z-50 flex items-center justify-between px-6">
       {/* Logo */}
-      <div className="flex items-center space-x-4">
+      {/* <div className="flex items-center space-x-4">
         <img
           src="/image/logo.png"
           alt="Logo"
@@ -73,7 +73,7 @@ const Navbar = () => {
         <span className="text-[#4F7A94] font-bold text-2xl font-[Montserrat] pl-16">
           {getTitle()}
         </span>
-      </div>
+      </div> */}
 
       {/* Right-side Icons */}
       <div className="flex items-center space-x-6">

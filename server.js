@@ -78,7 +78,7 @@ mongoose
 
 //  Test Route
 app.get("/", (req, res) => {
-  res.send("🚀 API is running successfully!");
+  res.send("API is running successfully!");
 });
 
 // Route to trigger system downtime notification
@@ -143,7 +143,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("❌ Client disconnected:", socket.id);
+    console.log("Client disconnected:", socket.id);
   });
 });
 
@@ -152,5 +152,5 @@ io.on("connection", (socket) => {
 // });
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

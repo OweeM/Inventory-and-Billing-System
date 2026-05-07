@@ -18,29 +18,34 @@ router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   try {
-      const user = await Users.findOne({ username });
-      if (!user) {
-          return res.status(404).json({ message: "User not found!" });
-      }
+    const user = await Users.findOne({
+      username: { $regex: new RegExp("^" + username + "$", "i") }  // ✅ FIX
+    });
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-          return res.status(400).json({ message: "Invalid credentials!" });
-      }
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
 
-      res.status(200).json({
-          message: "Login successful!",
-          user: {
-              id: user._id,
-              username: user.username,
-              role: user.role,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              bio: user.bio
-          }
-      });
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials!" });
+    }
+
+    res.status(200).json({
+      message: "Login successful!",
+      user: {
+        id: user._id,
+        username: user.username,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        bio: user.bio
+      }
+    });
+
   } catch (error) {
-      res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
